@@ -3,10 +3,11 @@ package util
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -14,10 +15,22 @@ import (
 )
 
 func AIRun(startD, endD, apiKey string) {
+	Logger.LogAttrs(context.Background(), slog.LevelInfo, "AI run phase started",
+		slog.String("start", startD),
+		slog.String("end", endD),
+	)
+
 	in, err := ioutil.ReadFile("edited_commits.txt")
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to read edited_commits.txt",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to read edited_commits.txt: %v\n", err)
+		os.Exit(1)
 	}
+	Logger.LogAttrs(context.Background(), slog.LevelInfo, "read edited_commits.txt",
+		slog.Int("bytes", len(in)),
+	)
 
 	systemPrompt := `You are a strict assistant for editing Git commit history.
 
@@ -96,12 +109,22 @@ Instructions:
 
 	b, err := json.Marshal(reqBody)
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to marshal request body",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to marshal request body: %v\n", err)
+		os.Exit(1)
 	}
+
+	Logger.LogAttrs(context.Background(), slog.LevelInfo, "sending request to OpenRouter")
 
 	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(b))
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to create HTTP request",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to create HTTP request: %v\n", err)
+		os.Exit(1)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
@@ -109,22 +132,43 @@ Instructions:
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "OpenRouter API request failed",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "OpenRouter API request failed: %v\n", err)
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to read API response body",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to read API response body: %v\n", err)
+		os.Exit(1)
 	}
+
+	Logger.LogAttrs(context.Background(), slog.LevelInfo, "received API response",
+		slog.Int("response_bytes", len(respBody)),
+	)
 
 	var cr chatResponse
 	if err := json.Unmarshal(respBody, &cr); err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to unmarshal API response",
+			slog.String("error", err.Error()),
+			slog.String("response", string(respBody)),
+		)
+		fmt.Fprintf(os.Stderr, "failed to unmarshal API response: %v\n", err)
+		os.Exit(1)
 	}
 
 	if len(cr.Choices) == 0 {
-		log.Fatalf("empty response from OpenRouter: %s", string(respBody))
+		Logger.LogAttrs(context.Background(), slog.LevelError, "empty response from OpenRouter",
+			slog.String("response", string(respBody)),
+		)
+		fmt.Fprintf(os.Stderr, "empty response from OpenRouter: %s\n", string(respBody))
+		os.Exit(1)
 	}
 
 	lines := strings.Split(cr.Choices[0].Message.Content, "\n")
@@ -137,8 +181,16 @@ Instructions:
 	output := strings.Join(cleaned, "\n")
 
 	if err := ioutil.WriteFile("updated_commits.txt", []byte(output), 0644); err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to write updated_commits.txt",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to write updated_commits.txt: %v\n", err)
+		os.Exit(1)
 	}
+
+	Logger.LogAttrs(context.Background(), slog.LevelInfo, "AI run phase completed",
+		slog.Int("commit_count", len(cleaned)),
+	)
 }
 
 var start string
@@ -148,26 +200,39 @@ func Run(startD string, endD string) {
 	start = startD
 	end = endD
 
+	Logger.LogAttrs(context.Background(), slog.LevelInfo, "sequential time generation phase started",
+		slog.String("start", startD),
+		slog.String("end", endD),
+	)
+
 	inFile := "edited_commits.txt"
 	f, err := os.Open(inFile)
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to open edited_commits.txt",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to open edited_commits.txt: %v\n", err)
+		os.Exit(1)
 	}
 	defer f.Close()
 
 	outFile := "updated_commits.txt"
 	out, err := os.Create(outFile)
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to create updated_commits.txt",
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to create updated_commits.txt: %v\n", err)
+		os.Exit(1)
 	}
 	defer out.Close()
-	
+
 	dates := generateDates(lenLines(inFile))
 
 	// Creates line reader for input file, Reads line-by-line.
 	scanner := bufio.NewScanner(f)
 	f.Seek(0, 0)
-	
+
 	idx := 0
 
 	// writting in the updated file
@@ -178,7 +243,7 @@ func Run(startD string, endD string) {
 
 		// split file messages in parts by Pipe '|'
 		parts := strings.SplitN(line, "|", 5)
-		
+
 		// use the dates from time slice we generated
 		newDate := dates[idx].Format("2006-01-02 15:04:05 +0530")
 
@@ -189,17 +254,26 @@ func Run(startD string, endD string) {
 		// new file lines generated
 		resultOutline := fmt.Sprintf("%s|%s|%s|%s|%s\n", parts[0], parts[1], parts[2], newDate, newMsg)
 		w.WriteString(resultOutline)
-		
+
 		idx++
 	}
 
 	w.Flush()
+
+	Logger.LogAttrs(context.Background(), slog.LevelInfo, "sequential time generation phase completed",
+		slog.Int("commits_processed", idx),
+	)
 }
 
 func lenLines(path string) int {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err)
+		Logger.LogAttrs(context.Background(), slog.LevelError, "failed to open file for line counting",
+			slog.String("path", path),
+			slog.String("error", err.Error()),
+		)
+		fmt.Fprintf(os.Stderr, "failed to open file %s: %v\n", path, err)
+		os.Exit(1)
 	}
 
 	defer file.Close()
@@ -209,7 +283,7 @@ func lenLines(path string) int {
 	count := 0
 
 	// Reads next line repeatedly.
-	// returns true if next line exist, else false 
+	// returns true if next line exist, else false
 	for s.Scan() {
 		count++
 	}

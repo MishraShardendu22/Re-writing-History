@@ -1,8 +1,10 @@
 package main
 
 import (
-	"log"
+	"context"
+	"log/slog"
 	"os"
+	"time"
 
 	"github.com/MishraShardendu22/util"
 	"github.com/joho/godotenv"
@@ -11,31 +13,42 @@ import (
 var repo = "Dhvani-Commit-Tester"
 var sshRemote = "git@github.com-learning:ShardenduMishra22/" + repo + ".git"
 
-var	start = "2026-06-01 00:00:00 +0530"
-var	end = "2026-06-05 23:59:59 +0530"
+var start = "2026-06-01 00:00:00 +0530"
+var end = "2026-06-05 23:59:59 +0530"
 
 func init() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		util.Logger.LogAttrs(context.Background(), slog.LevelError, "failed to load .env file",
+			slog.String("error", err.Error()),
+		)
+		os.Exit(1)
 	}
 }
-
 
 func main() {
 	apiKey := os.Getenv("API_KEY")
 	if apiKey == "" {
-		log.Fatal("API_KEY environment variable is not set. Please set it in your environment or .env file.")
+		util.Logger.LogAttrs(context.Background(), slog.LevelError, "API_KEY environment variable is not set")
+		os.Exit(1)
 	}
 
-	// 1. Clone the repo (no ssh) and generate edited_commits.txt
-	util.Clone("https://github.com/ShardenduMishra22/" + repo + ".git")
+	overallStart := time.Now()
 
-	// This step generally, I made optional. 
-	// I could not do this manually edit commits and push as well 
-	
+	// 1. Clone the repo (no ssh) and generate edited_commits.txt
+	cloneStart := time.Now()
+	util.LogPhaseStart("clone", slog.String("repo", repo))
+	util.Clone("https://github.com/ShardenduMishra22/"+repo+".git", repo)
+	util.LogPhaseEnd("clone", time.Since(cloneStart), slog.String("repo", repo))
+
+	// This step generally, I made optional.
+	// I could not do this manually edit commits and push as well
+
 	// 2.1 Run AI to generate updated_commits.txt
+	aiRunStart := time.Now()
+	util.LogPhaseStart("ai-run", slog.String("repo", repo))
 	util.AIRun(start, end, apiKey)
+	util.LogPhaseEnd("ai-run", time.Since(aiRunStart), slog.String("repo", repo))
 
 	// 2.2 Run a non AI automated sequential time script (very limited)
 	// util.Run(start,end)
@@ -43,5 +56,14 @@ func main() {
 	// 2.3 Do it manually and push
 
 	// 3. Edit commit history and push
-	util.Edit(sshRemote,repo)
+	editStart := time.Now()
+	util.LogPhaseStart("rewrite-push", slog.String("repo", repo))
+	util.Edit(sshRemote, repo)
+	util.LogPhaseEnd("rewrite-push", time.Since(editStart), slog.String("repo", repo))
+
+	overallDuration := time.Since(overallStart)
+	util.LogPhaseEnd("overall", overallDuration,
+		slog.String("repo", repo),
+		slog.Int64("active_jobs", util.ActiveJobs()),
+	)
 }

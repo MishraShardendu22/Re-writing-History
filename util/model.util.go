@@ -17,3 +17,9 @@ type chatChoice struct {
 type chatResponse struct {
 	Choices []chatChoice `json:"choices"`
 }
+
+type GitCommand struct {
+	Name string
+	Args []string
+	Dir  string
+}
