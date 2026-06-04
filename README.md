@@ -38,7 +38,7 @@ go mod tidy
 - Create a `.env` file in the project root:
 
 ```env
-API_KEY=sk-xxxxxxx
+API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ### 3. **Edit main.go for your target repo**
@@ -96,5 +96,6 @@ Pull requests and issues are welcome! Please open an issue to discuss your idea 
 
 ---
 
-## 📄 License
-MIT License. See [LICENSE](LICENSE) for details. 
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.
