@@ -103,7 +103,13 @@ Hackathon-Time-Script/
 
 ## Contributing
 
-Pull requests and issues are welcome. Please open an issue to discuss your idea or bug before submitting a PR.
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contributor guidelines. All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+## Security
+
+If you discover a security vulnerability, please see [SECURITY.md](SECURITY.md) for disclosure instructions.
 
 ---
 
