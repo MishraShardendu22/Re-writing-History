@@ -46,3 +46,14 @@ Only the latest release of this project is actively supported with security upda
 ## Contact
 
 For security-related matters, please open a GitHub Issue with the `security` label.
+
+
+## Why build this ?
+
+I built a small project to understand Git beyond the normal workflow. Mostly we only use high-level commands like commit, push, rebase, and merge. 
+
+I wanted to understand how Git actually stores commits, authorship metadata, timestamps, and object relationships internally, I wanted to understand plumbing commands and not just porcelian commands. 
+
+I experimented with changing commit metadata such as author information and commit dates using Git plumbing commands and history rewriting techniques. The goal wasn't to misrepresent work but to understand how Git's object model, commit hashes, history rewriting, and repository integrity work under the hood.
+
+The project taught me about Git objects, SHA-based commit identity, DAG structures, reflogs, filter-repo/filter-branch style history rewriting, author vs committer metadata, and the implications of rewriting shared history.

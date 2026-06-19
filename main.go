@@ -13,8 +13,8 @@ import (
 var repo = "Dhvani-Commit-Tester"
 var sshRemote = "git@github.com-learning:ShardenduMishra22/" + repo + ".git"
 
-var start = "2026-06-01 00:00:00 +0530"
-var end = "2026-06-05 23:59:59 +0530"
+var start = "2026-06-17 00:00:00 +0530"
+var end = "2026-06-19 23:59:59 +0530"
 
 func init() {
 	err := godotenv.Load(".env")

@@ -116,5 +116,5 @@ If you discover a security vulnerability, please see [SECURITY.md](SECURITY.md) 
 ---
 
 ## License
-
+I also used those techniques to create repositories with commits distributed across specific date ranges so I could observe how GitHub visualizes commit history and how rewritten histories affect repository state.
 MIT License. See [LICENSE](LICENSE) for details.
