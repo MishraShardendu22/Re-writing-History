@@ -2,6 +2,8 @@
 
 This project provides a Go script to retroactively edit Git commit metadata (author name, email, date) for a cloned GitHub repository. It uses an AI model to generate realistic commit dates and rewrites the repository history accordingly.
 
+Commit Testing Sample - [Test Repo](https://github.com/ShardenduMishra22/Dhvani-Commit-Tester)
+
 ---
 
 ## Features
