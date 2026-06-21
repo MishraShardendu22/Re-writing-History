@@ -11,7 +11,13 @@ import (
 )
 
 var repo = "Dhvani-Commit-Tester"
-var sshRemote = "git@github.com-learning:ShardenduMishra22/" + repo + ".git"
+var userName = "ShardenduMishra22"
+var sshRemote = "git@github.com-learning:" + userName + "/" + repo + ".git"
+
+// var repo = "Employee-Frontend"
+// var repo = "Employee-Leave-Management"
+// var userName = "singhvanshiki"
+// var sshRemote = "git@github.com-didi:" + userName + "/" + repo + ".git"
 
 var start = "2026-06-17 00:00:00 +0530"
 var end = "2026-06-19 23:59:59 +0530"
@@ -38,7 +44,7 @@ func main() {
 	// 1. Clone the repo (no ssh) and generate edited_commits.txt
 	cloneStart := time.Now()
 	util.LogPhaseStart("clone", slog.String("repo", repo))
-	util.Clone("https://github.com/ShardenduMishra22/"+repo+".git", repo)
+	util.Clone("https://github.com/" + userName + "/" + repo + ".git", repo)
 	util.LogPhaseEnd("clone", time.Since(cloneStart), slog.String("repo", repo))
 
 	// This step generally, I made optional.

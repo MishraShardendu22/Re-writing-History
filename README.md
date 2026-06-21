@@ -1,120 +1,101 @@
 # Git Commit Metadata Rewriter
 
-This project provides a Go script to retroactively edit Git commit metadata (author name, email, date) for a cloned GitHub repository. It uses an AI model to generate realistic commit dates and rewrites the repository history accordingly.
+## Overview
 
-Commit Testing Sample - [Test Repo](https://github.com/ShardenduMishra22/Dhvani-Commit-Tester)
+The Git Commit Metadata Rewriter is a specialized utility engineered in Go to retroactively modify Git commit metadata, including author names, email addresses, and timestamps, for cloned GitHub repositories. The system integrates with an AI model to generate realistic, non-uniform commit distributions, subsequently rewriting the repository's history to reflect the updated timelines.
 
----
+## Live Resources
 
-## Features
+- **Video Demonstration**: [YouTube](https://www.youtube.com/watch?v=jHUGKcj5OwE)
+- **Commit Testing Sample**: [Test Repository](https://github.com/ShardenduMishra22/Dhvani-Commit-Tester)
 
-- Clone any public GitHub repository
-- Generate new commit dates using an AI model (OpenRouter API)
-- Rewrite commit history with new metadata
-- Force-push rewritten history to the original repository
-- Automated cleanup of local files after completion
+## Core Capabilities
 
----
+- **Automated Repository Management**: Seamlessly clones public GitHub repositories for localized processing.
+- **AI-Driven Timestamp Generation**: Leverages the OpenRouter API to programmatically generate realistic commit date distributions.
+- **History Modification**: Utilizes Git filter-branch operations to systematically rewrite commit history with the newly generated metadata.
+- **Automated Synchronization**: Executes force-pushes to synchronize the rewritten history with the remote repository origin.
+- **State Cleanup**: Automatically purges temporary files and local repository clones upon process completion to maintain system hygiene.
 
-## How It Works
+## Operational Workflow
 
-1. Clone the target GitHub repository
-2. Extract the commit log to `edited_commits.txt`
-3. Generate new commit dates using an AI model (OpenRouter API)
-4. Write the new commit metadata to `updated_commits.txt`
-5. Rewrite the Git history using `git filter-branch` and the new metadata
-6. Force-push the rewritten history to the remote repository
-7. Clean up all temporary files and the local clone
+1. **Initialization**: Clones the specified target GitHub repository to the local environment.
+2. **Extraction**: Exports the existing commit log to `edited_commits.txt`.
+3. **Generation**: Interfaces with the AI model to establish new, realistic commit dates within a defined timeframe.
+4. **Data Mapping**: Compiles the updated commit metadata into `updated_commits.txt`.
+5. **Execution**: Rewrites the Git history applying the new metadata parameters.
+6. **Synchronization**: Force-pushes the modified commit history to the remote source.
+7. **Cleanup**: Removes all local artifacts and cloned data.
 
----
+## Installation and Configuration
 
-## Quickstart
+### 1. Repository Setup
 
-### 1. Clone this repo and install dependencies
+Clone the repository and resolve dependencies:
 
 ```bash
-git clone <your-fork-or-this-repo>
+git clone <repository-url>
 cd Hackathon-Time-Script
 go mod tidy
 ```
 
-### 2. Set up your API key
+### 2. API Authentication
 
-- Obtain an API key from [OpenRouter](https://openrouter.ai/)
-- Create a `.env` file in the project root:
+An OpenRouter API key is required for timestamp generation.
+Create a `.env` file in the project root directory:
 
 ```env
-API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+API_KEY=your_openrouter_api_key_here
 ```
 
-### 3. Edit main.go for your target repo
+### 3. Target Configuration
 
-- Set the `repo` variable to the repository you want to rewrite (e.g. `MishraShardendu22`)
-- Set the `start` and `end` date range for the new commit dates
+Modify `main.go` to define the target repository and the desired date range parameters:
 
-### 4. Run the script
+- `repo`: Set to the target repository identifier (e.g., `MishraShardendu22`).
+- `start` / `end`: Define the boundaries for the newly generated commit dates.
+
+### 4. Execution
 
 ```bash
 go run main.go
 ```
 
----
+## AI Integration Details
 
-## Example .env
-
-```env
-API_KEY=xxxxxxx
-```
-
----
-
-## AI Integration
-
-- The script uses the OpenRouter API to generate realistic, non-uniform commit dates within your specified range.
-- The AI is prompted to only change commit timestamps, not author names or messages.
-- If the API key is missing or invalid, the script will exit with an error.
-
----
+The system relies on the OpenRouter API to produce plausible commit timelines. The underlying prompt is strictly constrained to alter timestamps while preserving original author attributions and commit messages. Failure to provide a valid API key will result in immediate process termination.
 
 ## Troubleshooting
 
-- **API_KEY not set**: Ensure your `.env` file exists and contains a valid key.
-- **Permission denied on push**: Make sure your SSH key is added to GitHub and you have push access to the repo.
-- **AI returns empty or error**: Check your API key and network connection.
-- **Script panics on index out of range**: This means the AI response was empty or malformed. Check your API key and try again.
-- **Branch protection**: If the remote branch is protected, you may need to temporarily disable protection to force-push.
+- **Missing API_KEY**: Verify the `.env` file is present and properly formatted.
+- **Authentication Failures**: Ensure SSH keys are correctly configured with GitHub and that the executing environment holds sufficient push permissions for the target repository.
+- **Empty AI Responses**: Confirm API key validity and network connectivity. An index out of range panic typically indicates a malformed or empty API response.
+- **Protected Branches**: Force-push operations will fail on protected branches. Branch protection rules on the remote must be temporarily disabled prior to execution.
 
----
+## System Architecture
 
-## Project Structure
-
-```
+```text
 Hackathon-Time-Script/
- main.go                # Main script
- util/
-  clone.go              # Cloning and log extraction
-  run.go                # AI integration for commit date generation
-  edit.go               # History rewriting and push
- edited_commits.txt     # (Generated) Original commit log
- updated_commits.txt    # (Generated) AI-updated commit log
- .env                   # Your API key (not committed)
- go.mod, go.sum         # Go dependencies
+├── main.go                # Primary execution script
+├── util/
+│   ├── clone.go           # Repository cloning and log extraction logic
+│   ├── run.go             # AI model integration and timestamp generation
+│   └── edit.go            # History rewriting and synchronization procedures
+├── edited_commits.txt     # Extracted original commit log (Generated)
+├── updated_commits.txt    # AI-modified commit log (Generated)
+├── .env                   # Environment configuration (Ignored in version control)
+├── go.mod                 # Go module dependencies
+└── go.sum                 # Go module checksums
 ```
-
----
 
 ## Contributing
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contributor guidelines. All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md).
-
----
+Review `CONTRIBUTING.md` for detailed contributor guidelines and procedures. Adherence to the `CODE_OF_CONDUCT.md` is strictly enforced.
 
 ## Security
 
-If you discover a security vulnerability, please see [SECURITY.md](SECURITY.md) for disclosure instructions.
-
----
+For instructions on disclosing security vulnerabilities, please refer to `SECURITY.md`.
 
 ## License
-I also used those techniques to create repositories with commits distributed across specific date ranges so I could observe how GitHub visualizes commit history and how rewritten histories affect repository state.
-MIT License. See [LICENSE](LICENSE) for details.
+
+Distributed under the MIT License. See `LICENSE` for further details. This project was developed to observe GitHub's visualization of commit histories and the systemic effects of rewritten repositories.
