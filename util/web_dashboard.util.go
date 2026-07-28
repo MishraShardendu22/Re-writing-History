@@ -90,6 +90,7 @@ const gitDashboardHTML = `<!DOCTYPE html>
       border: 1px solid var(--border-default);
       border-radius: var(--radius-lg);
       padding: 24px 28px;
+      animation: slideFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .hero-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
     .hero-sub { color: var(--text-secondary); font-size: 14px; }
@@ -107,7 +108,45 @@ const gitDashboardHTML = `<!DOCTYPE html>
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      animation: slideFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      transition: transform 0.2s ease, border-color 0.2s ease;
     }
+
+    .commit-card:hover {
+      transform: translateX(4px);
+      border-color: var(--border-focus);
+    }
+
+    .commit-card:nth-child(1) { animation-delay: 0.05s; }
+    .commit-card:nth-child(2) { animation-delay: 0.10s; }
+    .commit-card:nth-child(3) { animation-delay: 0.15s; }
+
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulseEngine {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.1); }
+    }
+
+    .engine-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulseEngine 2s infinite ease-in-out;
+    }
+
     .commit-sha {
       font-family: var(--font-mono);
       font-size: 12px;
@@ -116,9 +155,25 @@ const gitDashboardHTML = `<!DOCTYPE html>
       padding: 4px 8px;
       border-radius: 4px;
       font-weight: 600;
+      transition: transform 0.15s ease, background-color 0.15s ease;
     }
+
+    .commit-sha:hover {
+      transform: scale(1.05);
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+
     .commit-msg { font-size: 14px; font-weight: 500; }
     .commit-date { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero, .commit-card, .engine-dot, .commit-sha {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -128,7 +183,7 @@ const gitDashboardHTML = `<!DOCTYPE html>
         <div class="brand-icon">📜</div>
         <span class="brand-title">Git History Rewriter</span>
       </div>
-      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);">Status: Active Engine</span>
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);"><span class="engine-dot"></span>Status: Active Engine</span>
     </div>
   </header>
 
