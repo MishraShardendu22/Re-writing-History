@@ -107,7 +107,6 @@ func (gc *GitCommand) RunWithStdout() error {
 	return nil
 }
 
-
 var activeJobs atomic.Int64
 
 func WorkerStarted(worker string, attrs ...slog.Attr) {

@@ -44,7 +44,7 @@ func main() {
 	// 1. Clone the repo (no ssh) and generate edited_commits.txt
 	cloneStart := time.Now()
 	util.LogPhaseStart("clone", slog.String("repo", repo))
-	util.Clone("https://github.com/" + userName + "/" + repo + ".git", repo)
+	util.Clone("https://github.com/"+userName+"/"+repo+".git", repo)
 	util.LogPhaseEnd("clone", time.Since(cloneStart), slog.String("repo", repo))
 
 	// This step generally, I made optional.
